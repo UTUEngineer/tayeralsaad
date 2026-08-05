@@ -42,6 +42,11 @@ export function SharedProfileScreen({ prepend }: { prepend?: ReactNode }) {
             <Text className="text-base font-medium text-ink">{t('language.title')}</Text>
           </Pressable>
         </Link>
+        <Link href="/help" asChild>
+          <Pressable className="rounded-xl bg-surface px-4 py-4">
+            <Text className="text-base font-medium text-ink">{t('help.title')}</Text>
+          </Pressable>
+        </Link>
         <Link href="/legal" asChild>
           <Pressable className="rounded-xl bg-surface px-4 py-4">
             <Text className="text-base font-medium text-ink">{t('legal.title')}</Text>

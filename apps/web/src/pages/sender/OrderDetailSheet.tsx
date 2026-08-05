@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { OrderStatusBadge } from "@/components/shared";
+import { OrderQRCode } from "@/features/orders/components";
 import { useCancelOrderMutation, useRateOrderMutation, useSenderOrderQuery } from "@/features/orders/hooks";
 import type { OrderDetail } from "@/features/orders/schemas";
 import i18n from "@/i18n/config";
@@ -278,6 +279,18 @@ export function OrderDetailSheet({ orderId, open, onOpenChange, onUpdated }: Pro
                       {order.deliveryWindow}
                     </p>
                   ) : null}
+                </CardContent>
+              </Card>
+
+              {/* Order QR Code & Thermal Label Actions */}
+              <Card className="shadow-sm border-dashed border-primary/30 bg-primary/5 dark:bg-slate-900">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center justify-between">
+                    <span>رمز الـ QR ومصادقة الشحنة</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <OrderQRCode order={order} size={160} />
                 </CardContent>
               </Card>
 

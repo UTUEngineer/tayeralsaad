@@ -18,6 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { AdminHeader } from "@/features/admin/components/AdminHeader";
 import { ConfirmDialog } from "@/features/admin/components/ConfirmDialog";
 import { DataTable, normalizeOrderStatus, orderStatusLabel, OrderStatusBadge } from "@/components/shared";
+import { OrderQRCode } from "@/features/orders/components";
 import { PermissionGate } from "@/features/admin/components/PermissionGate";
 import { useOrders } from "@/features/admin/hooks/useOrders";
 import i18n from "@/i18n/config";
@@ -333,6 +334,27 @@ export function AdminOrdersPage() {
                   <span className="text-muted-foreground">{t("admin.ordersPage.dropoff")}: </span>
                   {selected.dropAddress}
                 </p>
+
+                {/* QR Code & Thermal Print Label section */}
+                <div className="pt-2">
+                  <p className="font-medium mb-2">رمز الـ QR ومصادقة الطباعة</p>
+                  <OrderQRCode
+                    order={{
+                      id: selected.id,
+                      trackingCode: selected.trackingCode,
+                      status: selected.status,
+                      price: selected.price,
+                      receiverName: selected.receiverName || "المستلم",
+                      receiverPhone: selected.receiverPhone || "",
+                      dropAddress: selected.dropAddress,
+                      pickupAddress: selected.pickupAddress,
+                      city: selected.city,
+                      sender: selected.sender,
+                    }}
+                    size={160}
+                  />
+                </div>
+
                 <p className="font-medium">{t("admin.ordersPage.communications")}</p>
                 <p className="text-muted-foreground">{t("admin.ordersPage.chatPlaceholder")}</p>
               </div>

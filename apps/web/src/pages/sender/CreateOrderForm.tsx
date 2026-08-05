@@ -182,7 +182,7 @@ export function CreateOrderForm({ onSuccess, onClose, variant = "page" }: Props)
           <div className="space-y-1.5">
             <Label htmlFor="pkgType">{t("orders.create.packageType")}</Label>
             <NativeSelect id="pkgType" value={pkgType} onChange={(e) => setPkgType(e.target.value)}>
-              <option value="">{t("orders.create.selectCity")}</option>
+              <option value="">{t("orders.create.selectPackageType")}</option>
               {PACKAGE_TYPES.map((o) => (
                 <option key={o.value} value={o.value}>{enumLabel(PACKAGE_TYPES, o.value, lang)}</option>
               ))}
@@ -191,7 +191,7 @@ export function CreateOrderForm({ onSuccess, onClose, variant = "page" }: Props)
           <div className="space-y-1.5">
             <Label htmlFor="weightTier">{t("orders.create.weightTier")}</Label>
             <NativeSelect id="weightTier" value={weightTier} onChange={(e) => setWeightTier(e.target.value)}>
-              <option value="">{t("orders.create.selectCity")}</option>
+              <option value="">{t("orders.create.selectWeight")}</option>
               {WEIGHT_TIERS.map((o) => (
                 <option key={o.value} value={o.value}>{enumLabel(WEIGHT_TIERS, o.value, lang)}</option>
               ))}

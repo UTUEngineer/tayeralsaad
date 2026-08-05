@@ -981,6 +981,8 @@
       "declaredValue": "القيمة المصرّح بها (اختياري)",
       "city": "المدينة",
       "selectCity": "اختر مدينة",
+      "selectPackageType": "اختر نوع الطرد",
+      "selectWeight": "اختر الوزن",
       "area": "المنطقة / الحي",
       "areaPlaceholder": "مثال: الكرادة",
       "street": "الشارع (اختياري)",

@@ -345,7 +345,14 @@
     "disputeReplacePhoto": "Replace photo",
     "disputeSubmit": "Submit report",
     "disputeSuccess": "Your report was submitted.",
-    "driverLive": "Live"
+    "driverLive": "Live",
+    "pickupOtpLabel": "Pickup OTP (Give to Driver)",
+    "pickupOtpHint": "Share this 4-digit code with the driver when handing over your parcel.",
+    "deliveryOtpLabel": "Delivery Confirmation Code",
+    "deliveryOtpHint": "Share this 4-digit code with the recipient or driver upon delivery.",
+    "callDriver": "Call Driver",
+    "whatsappDriver": "WhatsApp Driver",
+    "whatsappPresetDriver": "Hello, I am the parcel sender following up on the delivery."
   },
   "shipment": {
     "receiver": "Recipient",
@@ -441,7 +448,22 @@
     "trackingTitle": "Shipment detail",
     "signAcknowledge": "Confirm receipt guidance",
     "signInfoTitle": "Signing handoff",
-    "signInfoBody": "Drivers complete delivery verification in the app. Please follow the OTP your courier shares and inspect the parcel before confirming."
+    "signInfoBody": "Drivers complete delivery verification in the app. Please follow the OTP your courier shares and inspect the parcel before confirming.",
+    "deliveryOtpLabel": "Delivery Confirmation Code",
+    "deliveryOtpHint": "Share this 4-digit secret code with the driver upon receiving your parcel."
+  },
+  "help": {
+    "title": "Help & Support",
+    "contactUs": "Contact Us",
+    "faqTitle": "Frequently Asked Questions",
+    "whatsappUs": "WhatsApp Support",
+    "callUs": "Call Support",
+    "faq1Q": "How do I track my parcel live?",
+    "faq1A": "Tayr Al-Saad allows real-time tracking of courier location and estimated time of arrival.",
+    "faq2Q": "How is parcel handoff secured?",
+    "faq2A": "A unique OTP code ensures verified handoff between sender, recipient, and driver.",
+    "faq3Q": "What if there is an issue with my delivery?",
+    "faq3A": "You can raise a dispute directly from the shipment page or contact support."
   },
   "locationPermission": {
     "title": "Let us know where you are",

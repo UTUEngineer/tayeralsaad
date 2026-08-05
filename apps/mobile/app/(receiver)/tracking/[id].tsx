@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import type { ShipmentStatus } from '@tayralsaad/types';
 import { formatIQD } from '@tayralsaad/utils';
@@ -139,6 +140,19 @@ export default function ReceiverShipmentTrackingScreen() {
             ) : null}
             <Text className="mt-4 text-sm text-inkSoft">{formatIQD(total, locale)}</Text>
           </View>
+
+          {raw.deliveryOtp && ['in_transit', 'picked_up', 'at_delivery', 'arrived_dropoff'].includes(st) ? (
+            <View className="mx-5 mt-6 rounded-2xl border border-primary/30 bg-primary/5 px-5 py-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-xs font-semibold text-primary uppercase">{t('receiver.deliveryOtpLabel')}</Text>
+                <Ionicons name="shield-checkmark-outline" size={20} color="#0284C7" />
+              </View>
+              <Text className="mt-2 text-center text-3xl font-bold tracking-widest text-primary">
+                {String(raw.deliveryOtp)}
+              </Text>
+              <Text className="mt-1 text-center text-xs text-inkSoft">{t('receiver.deliveryOtpHint')}</Text>
+            </View>
+          ) : null}
 
           {liveDriverCard?.firstName ? (
             <View className="mx-5 mt-6 rounded-2xl border border-border bg-surface px-4 py-4">

@@ -15,6 +15,7 @@ export type DriverAssignedPayload = {
   shipmentId: string;
   driver: {
     firstName?: string;
+    phone?: string;
     photoUrl?: string | null;
     rating?: { average: number; count: number };
     vehicle?: { type?: string; plate?: string };

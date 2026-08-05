@@ -11,6 +11,7 @@ import {
   Menu,
   Package,
   PlusCircle,
+  QrCode,
   RefreshCw,
   Settings,
   ShoppingBag,
@@ -40,6 +41,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getAdminNavKeyFromPath } from "@/features/admin/adminShellPaths";
 import { AdminNavLinks } from "@/features/admin/components/AdminNav";
 import { AdminShellBreadcrumbs } from "@/features/admin/components/AdminShellBreadcrumbs";
+import { OrderQRScannerModal } from "@/features/orders/components";
 import { cn } from "@/lib/utils";
 
 const API_HINT = env.VITE_API_URL;
@@ -277,6 +279,7 @@ export function DashboardLayout() {
   const location = useLocation();
   const { auth, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   function signOut() {
     logout();
@@ -323,6 +326,17 @@ export function DashboardLayout() {
               ) : null}
             </div>
             <div className="flex shrink-0 items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                type="button"
+                onClick={() => setScannerOpen(true)}
+                className="gap-1.5 text-xs rounded-lg"
+                title="مسح رمز QR"
+              >
+                <QrCode className="h-4 w-4 text-primary" />
+                <span className="hidden sm:inline">مسح QR</span>
+              </Button>
               <LanguageSwitcher id="dashboard-lang-header" showLabel={false} className="min-w-[7rem]" />
               {isSender && FEATURES.notifications ? <NotificationBell /> : null}
               <Button size="sm" variant="secondary" type="button" onClick={() => signOut()}>
@@ -332,16 +346,30 @@ export function DashboardLayout() {
           </header>
 
           <main className="flex-1 p-4 md:p-8">
-            {isSender && FEATURES.notifications ? (
-              <div className="mb-4 hidden justify-end md:flex">
-                <NotificationBell />
-              </div>
-            ) : null}
+            <div className="mb-4 hidden justify-end items-center gap-3 md:flex">
+              <Button
+                size="sm"
+                variant="outline"
+                type="button"
+                onClick={() => setScannerOpen(true)}
+                className="gap-2 text-xs rounded-lg border-primary/20 hover:bg-primary/5 shadow-sm"
+              >
+                <QrCode className="h-4 w-4 text-primary" />
+                <span>مسح رمز QR للشحنة</span>
+              </Button>
+              {isSender && FEATURES.notifications ? <NotificationBell /> : null}
+            </div>
             {isAdmin ? <AdminShellBreadcrumbs /> : null}
             <Outlet />
           </main>
         </div>
       </div>
+
+      {/* QR Code Scanner Modal */}
+      <OrderQRScannerModal
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+      />
     </div>
   );
 }

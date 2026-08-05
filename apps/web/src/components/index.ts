@@ -55,3 +55,4 @@ export { Textarea } from "./ui/textarea";
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 export { DatePicker, type DatePickerProps } from "./ui/date-picker";
 export { DateRangePicker, type DateRangePickerProps } from "./ui/date-range-picker";
+export { OrderQRCode, type OrderData } from "./OrderQRCode";

@@ -981,6 +981,8 @@
       "declaredValue": "Declared value (optional)",
       "city": "City",
       "selectCity": "Select a city",
+      "selectPackageType": "Select package type",
+      "selectWeight": "Select weight",
       "area": "Area / neighborhood",
       "areaPlaceholder": "e.g. Al-Karrada",
       "street": "Street (optional)",

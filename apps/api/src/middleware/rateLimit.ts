@@ -1,5 +1,6 @@
 import rateLimit, { type Options } from 'express-rate-limit';
 
+import { env } from '../config/env.js';
 import { HTTP } from '../constants.js';
 import { sendFail } from '../utils/apiResponse.js';
 
@@ -24,11 +25,14 @@ export const generalRateLimiter = rateLimit({
   limit: 300,
 });
 
+const devSkip = (): boolean => env.NODE_ENV !== 'production';
+
 /** Per-IP cap on OTP issuance — complements the per-phone limiter to stop SMS abuse. */
 export const otpRequestIpRateLimiter = rateLimit({
   ...base,
   windowMs: 60 * 60 * 1000,
   limit: 20,
+  skip: devSkip,
 });
 
 /** Per-IP cap on OTP verification to stop code brute-forcing. */
@@ -36,4 +40,5 @@ export const otpVerifyRateLimiter = rateLimit({
   ...base,
   windowMs: 10 * 60 * 1000,
   limit: 15,
+  skip: devSkip,
 });

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ShipmentStatus } from '@tayralsaad/types';
 import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native';
+import * as Linking from 'expo-linking';
 import * as ImagePicker from 'expo-image-picker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import i18next from 'i18next';
@@ -24,6 +25,7 @@ import { useShipmentLiveChannel } from '@/hooks/useShipmentLiveChannel';
 import type { DriverAssignedPayload } from '@/hooks/useShipmentLiveChannel';
 import { HttpApiError } from '@/lib/api';
 import { useTheme } from '@/lib/theme';
+import { openWhatsAppForPhone } from '@/lib/whatsapp';
 import { uploadShipmentPhoto } from '@/queries/driver';
 import {
   mongoId,
@@ -106,6 +108,16 @@ export default function SenderShipmentDetailScreen() {
 
   const cancelDisabled = shipment ? !canCancel(shipment.status) : true;
 
+  const driverCardData = liveDriverCard || (typeof shipment?.driverId === 'object' && shipment?.driverId ? {
+    firstName: ((shipment.driverId as Record<string, unknown>).userId as { name?: string })?.name?.split(' ')[0] ?? t('shipment.driver'),
+    photoUrl: ((shipment.driverId as Record<string, unknown>).userId as { avatarUrl?: string })?.avatarUrl ?? null,
+    vehicle: (shipment.driverId as Record<string, unknown>).vehicle as { type?: string; plate?: string } | undefined,
+    rating: ((shipment.driverId as Record<string, unknown>).userId as { rating?: { average: number; count: number } })?.rating ?? { average: 0, count: 0 },
+    phone: ((shipment.driverId as Record<string, unknown>).userId as { phone?: string })?.phone,
+  } : null);
+
+  const activeDriverPhone = liveDriverCard?.phone || (typeof shipment?.driverId === 'object' && shipment?.driverId ? ((shipment.driverId as Record<string, unknown>).userId as { phone?: string })?.phone : undefined);
+
   return (
     <ThemeScreen edges={['top']}>
       <CreateFlowHeader title={t('shipment.track')} onBack={() => router.back()} />
@@ -135,6 +147,38 @@ export default function SenderShipmentDetailScreen() {
             ) : null}
           </Card>
 
+          {/* Pickup OTP Card */}
+          {shipment.pickupOtp && ['assigned', 'at_pickup', 'pending'].includes(shipment.status) ? (
+            <Card style={{ gap: theme.spacing.xs, backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.primary }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <AppText variant="bodyBold" color="primary">{t('shipmentNew.pickupOtpLabel')}</AppText>
+                <Ionicons name="key-outline" size={20} color={theme.colors.primary} />
+              </View>
+              <AppText variant={locale === 'en' ? 'displayEn' : 'displayAr'} color="primary" align="center" style={{ letterSpacing: 8, fontSize: 32, marginVertical: theme.spacing.xs }}>
+                {shipment.pickupOtp}
+              </AppText>
+              <AppText variant="caption" color="inkMuted" align="center">
+                {t('shipmentNew.pickupOtpHint')}
+              </AppText>
+            </Card>
+          ) : null}
+
+          {/* Delivery OTP Card */}
+          {shipment.deliveryOtp && ['in_transit', 'picked_up', 'at_delivery', 'arrived_dropoff'].includes(shipment.status) ? (
+            <Card style={{ gap: theme.spacing.xs, backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.primary }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <AppText variant="bodyBold" color="primary">{t('shipmentNew.deliveryOtpLabel')}</AppText>
+                <Ionicons name="shield-checkmark-outline" size={20} color={theme.colors.primary} />
+              </View>
+              <AppText variant={locale === 'en' ? 'displayEn' : 'displayAr'} color="primary" align="center" style={{ letterSpacing: 8, fontSize: 32, marginVertical: theme.spacing.xs }}>
+                {shipment.deliveryOtp}
+              </AppText>
+              <AppText variant="caption" color="inkMuted" align="center">
+                {t('shipmentNew.deliveryOtpHint')}
+              </AppText>
+            </Card>
+          ) : null}
+
           {shipment.status === 'disputed' ? (
             <Card style={{ borderColor: theme.colors.danger, gap: theme.spacing.sm }}>
               <AppText variant="bodyBold" color="danger">
@@ -160,12 +204,12 @@ export default function SenderShipmentDetailScreen() {
             dropoffPinColor={theme.colors.accent}
           />
 
-          {liveDriverCard ? (
+          {driverCardData ? (
             <Card style={{ gap: theme.spacing.md }}>
               <View style={styles.driverRow}>
-                {liveDriverCard.photoUrl ? (
+                {driverCardData.photoUrl ? (
                   <Image
-                    source={{ uri: liveDriverCard.photoUrl }}
+                    source={{ uri: driverCardData.photoUrl }}
                     style={[styles.driverAvatar, { backgroundColor: theme.colors.line }]}
                   />
                 ) : (
@@ -174,17 +218,17 @@ export default function SenderShipmentDetailScreen() {
                   </View>
                 )}
                 <View style={styles.driverInfo}>
-                  <AppText variant="bodyBold">{liveDriverCard.firstName ?? t('shipment.driver')}</AppText>
-                  {liveDriverCard.vehicle ? (
+                  <AppText variant="bodyBold">{driverCardData.firstName ?? t('shipment.driver')}</AppText>
+                  {driverCardData.vehicle ? (
                     <AppText variant="caption" color="inkMuted">
-                      {liveDriverCard.vehicle.type ?? ''}
-                      {liveDriverCard.vehicle.plate ? ` · ${liveDriverCard.vehicle.plate}` : ''}
+                      {driverCardData.vehicle.type ?? ''}
+                      {driverCardData.vehicle.plate ? ` · ${driverCardData.vehicle.plate}` : ''}
                     </AppText>
                   ) : null}
                   <AppText variant="caption" color="inkMuted">
                     {t('sender.home.courierRating', {
-                      rating: liveDriverCard.rating?.average ?? 0,
-                      count: liveDriverCard.rating?.count ?? 0,
+                      rating: driverCardData.rating?.average ?? 0,
+                      count: driverCardData.rating?.count ?? 0,
                     })}
                   </AppText>
                 </View>
@@ -194,6 +238,25 @@ export default function SenderShipmentDetailScreen() {
                   </AppText>
                 ) : null}
               </View>
+
+              {activeDriverPhone ? (
+                <View style={{ flexDirection: 'row', gap: theme.spacing.md, paddingTop: theme.spacing.xs }}>
+                  <ThemeButton
+                    variant="secondary"
+                    style={{ flex: 1 }}
+                    onPress={() => void Linking.openURL(`tel:${activeDriverPhone}`)}
+                  >
+                    <Ionicons name="call-outline" size={18} color={theme.colors.primary} /> {t('shipmentNew.callDriver')}
+                  </ThemeButton>
+                  <ThemeButton
+                    variant="secondary"
+                    style={{ flex: 1 }}
+                    onPress={() => void openWhatsAppForPhone(activeDriverPhone, t('shipmentNew.whatsappPresetDriver'))}
+                  >
+                    <Ionicons name="logo-whatsapp" size={18} color="#16A34A" /> {t('shipmentNew.whatsappDriver')}
+                  </ThemeButton>
+                </View>
+              ) : null}
             </Card>
           ) : null}
 
