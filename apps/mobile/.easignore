@@ -1,0 +1,11 @@
+# EAS Build ignore patterns for mobile app
+.git
+.turbo
+.idea
+.vscode
+node_modules
+android/.gradle
+android/build
+android/app/build
+dist
+.expo

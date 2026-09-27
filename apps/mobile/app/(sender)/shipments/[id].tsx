@@ -12,6 +12,8 @@ import { CreateFlowHeader } from '@/components/sender/create/CreateFlowHeader';
 import { ShipmentDetailSkeleton } from '@/components/sender/ShipmentDetailSkeleton';
 import { ShipmentPriceBreakdown } from '@/components/sender/ShipmentPriceBreakdown';
 import { ShipmentRatingSection } from '@/components/sender/ShipmentRatingSection';
+import { HandoffOtpCard } from '@/components/shipment/HandoffOtpCard';
+import { DriverContactActions } from '@/components/shipment/DriverContactActions';
 import { ShipmentRouteMap } from '@/components/shipment/ShipmentRouteMap';
 import { StatusTimeline } from '@/components/shipment/StatusTimeline';
 import { AppText } from '@/components/ui/AppText';
@@ -147,37 +149,11 @@ export default function SenderShipmentDetailScreen() {
             ) : null}
           </Card>
 
-          {/* Pickup OTP Card */}
-          {shipment.pickupOtp && ['assigned', 'at_pickup', 'pending'].includes(shipment.status) ? (
-            <Card style={{ gap: theme.spacing.xs, backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.primary }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <AppText variant="bodyBold" color="primary">{t('shipmentNew.pickupOtpLabel')}</AppText>
-                <Ionicons name="key-outline" size={20} color={theme.colors.primary} />
-              </View>
-              <AppText variant={locale === 'en' ? 'displayEn' : 'displayAr'} color="primary" align="center" style={{ letterSpacing: 8, fontSize: 32, marginVertical: theme.spacing.xs }}>
-                {shipment.pickupOtp}
-              </AppText>
-              <AppText variant="caption" color="inkMuted" align="center">
-                {t('shipmentNew.pickupOtpHint')}
-              </AppText>
-            </Card>
-          ) : null}
-
-          {/* Delivery OTP Card */}
-          {shipment.deliveryOtp && ['in_transit', 'picked_up', 'at_delivery', 'arrived_dropoff'].includes(shipment.status) ? (
-            <Card style={{ gap: theme.spacing.xs, backgroundColor: theme.colors.surfaceAlt, borderColor: theme.colors.primary }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <AppText variant="bodyBold" color="primary">{t('shipmentNew.deliveryOtpLabel')}</AppText>
-                <Ionicons name="shield-checkmark-outline" size={20} color={theme.colors.primary} />
-              </View>
-              <AppText variant={locale === 'en' ? 'displayEn' : 'displayAr'} color="primary" align="center" style={{ letterSpacing: 8, fontSize: 32, marginVertical: theme.spacing.xs }}>
-                {shipment.deliveryOtp}
-              </AppText>
-              <AppText variant="caption" color="inkMuted" align="center">
-                {t('shipmentNew.deliveryOtpHint')}
-              </AppText>
-            </Card>
-          ) : null}
+          <HandoffOtpCard
+            status={shipment.status}
+            pickupOtp={shipment.pickupOtp}
+            deliveryOtp={shipment.deliveryOtp}
+          />
 
           {shipment.status === 'disputed' ? (
             <Card style={{ borderColor: theme.colors.danger, gap: theme.spacing.sm }}>
@@ -240,22 +216,10 @@ export default function SenderShipmentDetailScreen() {
               </View>
 
               {activeDriverPhone ? (
-                <View style={{ flexDirection: 'row', gap: theme.spacing.md, paddingTop: theme.spacing.xs }}>
-                  <ThemeButton
-                    variant="secondary"
-                    style={{ flex: 1 }}
-                    onPress={() => void Linking.openURL(`tel:${activeDriverPhone}`)}
-                  >
-                    <Ionicons name="call-outline" size={18} color={theme.colors.primary} /> {t('shipmentNew.callDriver')}
-                  </ThemeButton>
-                  <ThemeButton
-                    variant="secondary"
-                    style={{ flex: 1 }}
-                    onPress={() => void openWhatsAppForPhone(activeDriverPhone, t('shipmentNew.whatsappPresetDriver'))}
-                  >
-                    <Ionicons name="logo-whatsapp" size={18} color="#16A34A" /> {t('shipmentNew.whatsappDriver')}
-                  </ThemeButton>
-                </View>
+                <DriverContactActions
+                  driverPhone={activeDriverPhone}
+                  driverName={driverCardData.firstName ?? t('shipment.driver')}
+                />
               ) : null}
             </Card>
           ) : null}

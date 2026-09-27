@@ -358,14 +358,16 @@
     "receiver": "المستلم",
     "package": "نوع الطرد",
     "quote": "التسعير",
-    "trackingCode": "رمز التتبع",
+    "call_driver": "اتصال بالسائق",
+    "whatsapp": "واتساب",
     "driver": "السائق",
     "track": "تتبع الشحنة",
-    "history": "سجل الحالة",
-    "tierExpress": "سريع",
-    "tierSameDay": "نفس اليوم",
-    "tierScheduled": "مجدول",
-    "tierStandard": "عادي"
+    "history": "سجل الأحداث"
+  },
+  "tracking": {
+    "pickup_code_title": "رمز التحقق عند الاستلام (OTP)",
+    "delivery_code_title": "رمز التحقق عند التسليم (OTP)",
+    "otp_share_warning": "شارك هذا الرمز مع السائق عند الوصول فقط لتأكيد العملية."
   },
   "sender": {
     "newShipment": "شحنة جديدة",
@@ -506,7 +508,8 @@
     "privacy": "سياسة الخصوصية",
     "privacyUrl": "https://smartgateapp.com/privacy",
     "terms": "شروط الاستخدام",
-    "termsUrl": "https://smartgateapp.com/terms"
+    "termsUrl": "https://smartgateapp.com/terms",
+    "support": "مركز المساعدة والدعم الفني"
   },
   "misc": {
     "legalNote": "باستخدامك للتطبيق، فأنت توافق على شروط الاستخدام وسياسة الخصوصية."

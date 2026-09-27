@@ -18,10 +18,12 @@ import { clearUnauthorizedRegistration, registerUnauthorized } from '@/lib/authE
 import { initSentry } from '@/lib/sentry';
 import { queryClient } from '@/lib/queryClient';
 import { useAuthStore } from '@/stores/authStore';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  usePushNotifications();
   const router = useRouter();
   const hydrate = useAuthStore((s) => s.hydrate);
   const { fontsLoaded, fontError } = useAppFonts();

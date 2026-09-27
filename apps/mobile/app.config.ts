@@ -4,7 +4,7 @@ const config: ExpoConfig = {
   name: 'طير السعد',
   slug: 'tayralsaad',
   scheme: 'tayralsaad',
-  version: '1.0.3',
+  version: '1.0.4',
   orientation: 'default',
   userInterfaceStyle: 'automatic',
   backgroundColor: '#F8F3EA',
@@ -49,14 +49,14 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'iq.utu.tayralsaad',
-    buildNumber: '5',
+    buildNumber: '6',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
   },
   android: {
     package: 'iq.utu.tayralsaad',
-    versionCode: 6,
+    versionCode: 7,
     intentFilters: [
       {
         action: 'VIEW',

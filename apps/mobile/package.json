@@ -1,6 +1,6 @@
 {
   "name": "@tayralsaad/mobile",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -38,6 +38,7 @@
     "expo-asset": "~11.0.5",
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.8",
+    "expo-device": "~7.0.2",
     "expo-font": "^13.0.4",
     "expo-haptics": "^14.0.1",
     "expo-image-picker": "~16.0.6",
@@ -45,6 +46,7 @@
     "expo-linking": "~7.0.5",
     "expo-localization": "~16.0.1",
     "expo-location": "~18.0.7",
+    "expo-notifications": "~0.29.13",
     "expo-router": "~4.0.17",
     "expo-secure-store": "~14.0.1",
     "expo-splash-screen": "~0.29.24",

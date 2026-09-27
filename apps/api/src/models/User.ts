@@ -42,6 +42,7 @@ const userSchema = new Schema(
       default: 'ar',
     },
     avatarUrl: { type: String },
+    pushToken: { type: String, default: null },
     defaultAddresses: { type: [addressSchema], default: [] },
     rating: {
       average: { type: Number, default: 0 },

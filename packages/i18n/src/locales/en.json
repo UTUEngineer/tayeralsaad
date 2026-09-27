@@ -358,6 +358,8 @@
     "receiver": "Recipient",
     "package": "Package type",
     "quote": "Quote",
+    "call_driver": "Call Driver",
+    "whatsapp": "WhatsApp",
     "trackingCode": "Tracking code",
     "driver": "Courier",
     "track": "Track shipment",
@@ -366,6 +368,11 @@
     "tierSameDay": "Same day",
     "tierScheduled": "Scheduled",
     "tierStandard": "Standard"
+  },
+  "tracking": {
+    "pickup_code_title": "Pickup Verification Code (OTP)",
+    "delivery_code_title": "Delivery Verification Code (OTP)",
+    "otp_share_warning": "Share this code with the driver only upon arrival to confirm."
   },
   "sender": {
     "newShipment": "Send new shipment",
@@ -506,7 +513,8 @@
     "privacy": "Privacy Policy",
     "privacyUrl": "https://smartgateapp.com/privacy",
     "terms": "Terms of Service",
-    "termsUrl": "https://smartgateapp.com/terms"
+    "termsUrl": "https://smartgateapp.com/terms",
+    "support": "Help Center & Support"
   },
   "misc": {
     "legalNote": "By using the app, you agree to the Terms of Service and Privacy Policy."

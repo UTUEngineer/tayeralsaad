@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Platform, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, View } from 'react-native';
 
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import type { ServiceTier } from '@tayralsaad/types';
@@ -10,6 +10,7 @@ import i18next from 'i18next';
 
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
+import { ThemeInput } from '@/components/ui/ThemeInput';
 import { useTheme } from '@/lib/theme';
 import { useDraftShipmentStore } from '@/stores/draftShipmentStore';
 
@@ -36,6 +37,9 @@ export function CreatePricingStep() {
   );
   const [scheduledLocal, setScheduledLocal] = useState(scheduledDate);
   const [pickerShown, setPickerShown] = useState(Platform.OS === 'ios');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState(0);
 
   const tierLabels: Record<ServiceTier, string> = {
     standard: t('shipment.tierStandard'),
@@ -113,9 +117,57 @@ export function CreatePricingStep() {
       ) : null}
 
       {lastQuote ? (
-        <Card style={{ gap: theme.spacing.md, alignItems: 'center' }}>
+        <Card style={{ gap: theme.spacing.md }}>
+          <AppText variant="bodyBold">{t('shipmentNew.promoTitle', { defaultValue: 'كوبون الخصم' })}</AppText>
+          <View style={{ flexDirection: 'row', gap: theme.spacing.sm, alignItems: 'center' }}>
+            <ThemeInput
+              placeholder={t('shipmentNew.promoPlaceholder', { defaultValue: 'أدخل كود الخصم (مثال: WELCOME10)' })}
+              value={promoCode}
+              onChangeText={(val) => {
+                setPromoCode(val);
+                if (promoApplied) {
+                  setPromoApplied(false);
+                  setPromoDiscount(0);
+                }
+              }}
+              style={{ flex: 1 }}
+            />
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                const code = promoCode.trim().toUpperCase();
+                if (code === 'WELCOME10' || code === 'TAYR10' || code === 'TAYR20') {
+                  const pct = code.endsWith('20') ? 0.2 : 0.1;
+                  const discount = Math.round(lastQuote.pricing.total * pct);
+                  setPromoDiscount(discount);
+                  setPromoApplied(true);
+                } else if (code) {
+                  Alert.alert(t('common.errorTitle'), t('shipmentNew.promoInvalid', { defaultValue: 'كود الخصم غير صالح' }));
+                }
+              }}
+              style={{
+                backgroundColor: theme.colors.primary,
+                paddingHorizontal: theme.spacing.lg,
+                paddingVertical: 14,
+                borderRadius: theme.radius.button,
+              }}
+            >
+              <AppText variant="bodyBold" color="white">
+                {t('common.confirm')}
+              </AppText>
+            </Pressable>
+          </View>
+
+          {promoApplied ? (
+            <AppText variant="caption" color="accent">
+              ✓ {t('shipmentNew.promoApplied', { defaultValue: 'تم تطبيق الخصم بنجاح!' })}
+            </AppText>
+          ) : null}
+
+          <View style={{ height: 1, backgroundColor: theme.colors.line, marginVertical: theme.spacing.xs }} />
+
           <AppText variant="title" color="primary" align="center">
-            {formatIQD(lastQuote.pricing.total, locale)}
+            {formatIQD(Math.max(0, lastQuote.pricing.total - promoDiscount), locale)}
           </AppText>
           <View style={{ alignSelf: 'stretch', gap: theme.spacing.xs }}>
             <PriceRow label={t('shipmentNew.pricingBase')} value={formatIQD(lastQuote.pricing.base, locale)} />
@@ -123,9 +175,12 @@ export function CreatePricingStep() {
             {lastQuote.pricing.surcharge > 0 ? (
               <PriceRow label={t('shipmentNew.pricingSurcharge')} value={formatIQD(lastQuote.pricing.surcharge, locale)} />
             ) : null}
+            {promoDiscount > 0 ? (
+              <PriceRow label={t('shipmentNew.promoDiscount', { defaultValue: 'خصم الكوبون' })} value={`-${formatIQD(promoDiscount, locale)}`} />
+            ) : null}
           </View>
           {typeof lastQuote.etaMinutes === 'number' ? (
-            <AppText variant="caption" color="inkMuted">
+            <AppText variant="caption" color="inkMuted" align="center">
               {t('shipmentNew.etaMinutes', { minutes: lastQuote.etaMinutes })}
             </AppText>
           ) : null}

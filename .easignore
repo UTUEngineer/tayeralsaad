@@ -1,0 +1,18 @@
+# EAS Build ignore patterns
+.git
+.turbo
+.idea
+.vscode
+node_modules
+apps/**/node_modules
+packages/**/node_modules
+android/.gradle
+android/build
+android/app/build
+apps/mobile/android/.gradle
+apps/mobile/android/build
+apps/mobile/android/app/build
+apps/mobile/dist
+apps/mobile/.expo
+var
+tmp

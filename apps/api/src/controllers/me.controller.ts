@@ -87,3 +87,14 @@ export const removeAddress = asyncHandler(async (req: Request, res: Response) =>
   await user.save();
   sendOk(res, user);
 });
+
+export const savePushToken = asyncHandler(async (req: Request, res: Response) => {
+  const user = await UserModel.findById(req.auth?.userId);
+  if (!user) throw new NotFoundError();
+  const token = req.body?.token;
+  if (typeof token === 'string' && token.trim()) {
+    user.pushToken = token.trim();
+    await user.save();
+  }
+  sendOk(res, { success: true });
+});

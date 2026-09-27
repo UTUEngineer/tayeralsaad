@@ -14,7 +14,8 @@ export function buildMeRoutes(): Router {
   router.patch('/me', authenticate, validate('body', patchMeSchema), MeController.patchMe);
   router.post('/me/addresses', authenticate, validate('body', addressSchema), MeController.addAddress);
   router.patch('/me/addresses/:id', authenticate, MeController.updateAddress);
-  router.delete('/me/addresses/:id', authenticate, MeController.removeAddress);
+  router.post('/me/push-token', authenticate, MeController.savePushToken);
+  router.post('/users/push-token', authenticate, MeController.savePushToken);
 
   return router;
 }

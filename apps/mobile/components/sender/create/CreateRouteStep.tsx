@@ -25,6 +25,31 @@ export function CreateRouteStep({ errors }: RouteStepProps) {
   const { t } = useTranslation();
   const { data: me } = useMe();
   const [focus, setFocus] = useState<'pickup' | 'dropoff'>('pickup');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [searching, setSearching] = useState(false);
+
+  async function handleSearch(query: string) {
+    setSearchQuery(query);
+    if (!query || query.trim().length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query.trim())}&limit=5`, {
+        headers: { 'User-Agent': 'TayrAlSaad/1.0' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSearchResults(data);
+      }
+    } catch {
+      // silent fallback
+    } finally {
+      setSearching(false);
+    }
+  }
 
   const pickup = useDraftShipmentStore((s) => s.pickup);
   const dropoff = useDraftShipmentStore((s) => s.dropoff);
@@ -56,6 +81,45 @@ export function CreateRouteStep({ errors }: RouteStepProps) {
       <AppText variant="caption" color="inkMuted">
         {t('shipmentNew.mapHint')}
       </AppText>
+
+      <View style={{ gap: theme.spacing.xs }}>
+        <ThemeInput
+          placeholder={t('shipmentNew.searchPlacePlaceholder', { defaultValue: 'ابحث عن منطقة أو شارع (مثال: الكرادة، بغداد)...' })}
+          value={searchQuery}
+          onChangeText={(v) => void handleSearch(v)}
+        />
+        {searching ? (
+          <AppText variant="caption" color="inkMuted">{t('common.loading')}</AppText>
+        ) : null}
+        {searchResults.length > 0 ? (
+          <View style={{ gap: 4, backgroundColor: theme.colors.surface, borderRadius: theme.radius.card, padding: theme.spacing.xs, borderWidth: 1, borderColor: theme.colors.line }}>
+            {searchResults.map((item, idx) => (
+              <Pressable
+                key={idx}
+                style={{ padding: 10, borderBottomWidth: idx === searchResults.length - 1 ? 0 : 1, borderBottomColor: theme.colors.line }}
+                onPress={() => {
+                  const lat = parseFloat(item.lat);
+                  const lng = parseFloat(item.lon);
+                  const patch = focus === 'pickup' ? patchPickup : patchDropoff;
+                  const parts = item.display_name.split(',').map((s) => s.trim());
+                  const areaName = parts[0] ?? '';
+                  const cityName = parts[1] ?? 'Baghdad';
+
+                  patch({
+                    location: { lat, lng },
+                    area: areaName,
+                    city: scrubCityStored(cityName),
+                  });
+                  setSearchResults([]);
+                  setSearchQuery(item.display_name.slice(0, 30));
+                }}
+              >
+                <AppText variant="caption" color="ink">{item.display_name}</AppText>
+              </Pressable>
+            ))}
+          </View>
+        ) : null}
+      </View>
 
       <View style={styles.addressTabs}>
         <AddressTab
