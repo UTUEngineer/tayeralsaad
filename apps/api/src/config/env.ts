@@ -48,7 +48,9 @@ const envSchema = z
     JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
     JWT_REFRESH_TTL_SECONDS: z.coerce.number().int().positive().default(60 * 60 * 24 * 30),
     /** Comma-separated allow-list of web/admin origins for CORS (e.g. "https://app.x,https://admin.x"). */
-    CORS_ORIGIN: z.string().default('http://localhost:5173'),
+    CORS_ORIGIN: z
+      .string()
+      .default('https://tayeralsaad.vercel.app,http://localhost:5173,http://localhost:3000'),
     WEB_PUBLIC_URL: z.string().url().default('http://localhost:5173'),
     /** Meta WhatsApp Cloud API (optional; worker skips sends if unset). */
     WHATSAPP_ACCESS_TOKEN: z.string().optional(),

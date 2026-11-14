@@ -2,6 +2,12 @@ import type { CorsOptions } from 'cors';
 
 import { env } from './env.js';
 
+export const allowedOrigins = [
+  'https://tayeralsaad.vercel.app',
+  'http://localhost:3000', // للتطوير المحلي
+  'http://localhost:5173',
+];
+
 /** Any localhost loopback origin with an optional dev port */
 const localhostDev = /^https?:\/\/(localhost|127\.0\.0\.1)(?::\d+)?$/;
 
@@ -16,7 +22,7 @@ function devOriginAllowed(origin: string): boolean {
   return localhostDev.test(origin) || privateLanDev.test(origin);
 }
 
-/** Vercel production + preview deploys (e.g. tair-alsaad-web-po1w.vercel.app). */
+/** Vercel production + preview deploys (e.g. tayeralsaad.vercel.app, tair-alsaad-web.vercel.app). */
 const vercelApp = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
 
 /** Netlify production + hash-prefixed deploy previews. */
@@ -29,9 +35,10 @@ function hostedWebOriginAllowed(origin: string): boolean {
 
 /** Parse the comma-separated CORS_ORIGIN allow-list into normalized origins. */
 export function corsAllowList(): string[] {
-  return env.CORS_ORIGIN.split(',')
+  const envList = env.CORS_ORIGIN.split(',')
     .map((o) => o.trim().replace(/\/$/, ''))
     .filter(Boolean);
+  return Array.from(new Set([...allowedOrigins, ...envList]));
 }
 
 /**
@@ -43,6 +50,7 @@ export function dynamicHttpCorsOrigin(): CorsOptions['origin'] {
   const allow = corsAllowList();
   const isProd = env.NODE_ENV === 'production';
   return (origin, cb) => {
+    // السماح للطلبات بدون origin (مثل Postman أو تطبيقات الجوال) أو الدومينات المسموحة
     if (!origin) {
       cb(null, true);
       return;
@@ -53,15 +61,15 @@ export function dynamicHttpCorsOrigin(): CorsOptions['origin'] {
       hostedWebOriginAllowed(normalized) ||
       (!isProd && devOriginAllowed(normalized))
     ) {
-      cb(null, normalized);
+      cb(null, true);
       return;
     }
-    cb(null, false);
+    cb(new Error('Not allowed by CORS'));
   };
 }
 
 /** Same rules as Express CORS for Socket.IO */
 export function dynamicSocketIoCorsOrigin(): string | boolean | RegExp | (string | RegExp)[] {
   if (env.NODE_ENV === 'production') return [...corsAllowList(), vercelApp, netlifyApp];
-  return [localhostDev, privateLanDev];
+  return [localhostDev, privateLanDev, ...corsAllowList(), vercelApp, netlifyApp];
 }
