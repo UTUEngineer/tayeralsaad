@@ -36,7 +36,13 @@
     "react": "18.3.1",
     "react-native": "0.76.9"
   },
-  "pnpm": { 
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@sentry/cli",
+      "esbuild",
+      "msgpackr-extract",
+      "msw"
+    ],
     "hoistPattern": [
       "@sentry/*",
       "react-native-worklets-core"
