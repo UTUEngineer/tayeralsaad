@@ -1,7 +1,17 @@
+import dns from 'node:dns';
 import mongoose from 'mongoose';
 import type { Logger } from 'pino';
 
 import { env } from './env.js';
+
+// Resolve MongoDB SRV records via public DNS if local resolver fails/blocks SRV
+if (env.MONGODB_URI.startsWith('mongodb+srv://')) {
+  try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+  } catch {
+    /* ignore */
+  }
+}
 
 /** Default driver settings so local dev fails fast with a clear timeout instead of hanging. */
 const clientOptions = {
