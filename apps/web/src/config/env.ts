@@ -1,8 +1,34 @@
 import { z } from "zod";
 
+/**
+ * Application environment configuration and fallback handlers.
+ */
+
+const DEFAULT_PROD_API_URL = "https://tayeralsaad2-n8sq37t1.b4a.run/api/v1";
+const DEFAULT_PROD_WS_URL = "wss://tayeralsaad2-n8sq37t1.b4a.run";
+
+function defaultWsUrl(apiUrl: string): string {
+  try {
+    const parsed = new URL(apiUrl);
+    // تحويل البروتوكول إلى آمن أو غير آمن بناءً على الـ API
+    parsed.protocol = parsed.protocol === "https:" ? "wss:" : "ws:";
+    // تفريغ المسار والبحث والـ hash لضمان الاتصال بالجذر (Root Socket.IO Namespace)
+    parsed.pathname = "";
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    // Fallback احتياطي في حال فشل تحليل الرابط
+    return DEFAULT_PROD_WS_URL;
+  }
+}
+
 const envSchema = z.object({
   VITE_API_URL: z
-    .preprocess((v) => (typeof v === "string" && v.trim() ? v : "http://127.0.0.1:4000/api/v1"), z.string().url()),
+    .preprocess(
+      (v) => (typeof v === "string" && v.trim() ? v : DEFAULT_PROD_API_URL),
+      z.string().url(),
+    ),
   VITE_WS_URL: z.string().optional(),
   VITE_MAPBOX_TOKEN: z.string().optional(),
   VITE_USE_MOCKS: z.enum(["true", "false"]).optional(),
@@ -22,22 +48,17 @@ if (!parsed.success) {
   throw new Error(`Invalid environment: ${parsed.error.message}`);
 }
 
-function defaultWsUrl(apiUrl: string): string {
-  try {
-    const u = new URL(apiUrl);
-    u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
-    u.pathname = "";
-    u.search = "";
-    u.hash = "";
-    return u.toString().replace(/\/$/, "");
-  } catch {
-    return "ws://127.0.0.1:4000";
-  }
-}
+const apiUrl = parsed.data.VITE_API_URL.replace(/\/$/, "");
+const wsUrl = (parsed.data.VITE_WS_URL ?? defaultWsUrl(parsed.data.VITE_API_URL)).replace(/\/$/, "");
+const isMock = parsed.data.VITE_USE_MOCKS === "true";
 
 export const env = {
   ...parsed.data,
-  VITE_API_URL: parsed.data.VITE_API_URL.replace(/\/$/, ""),
-  VITE_WS_URL: (parsed.data.VITE_WS_URL ?? defaultWsUrl(parsed.data.VITE_API_URL)).replace(/\/$/, ""),
-  VITE_USE_MOCKS: parsed.data.VITE_USE_MOCKS === "true",
+  VITE_API_URL: apiUrl,
+  VITE_WS_URL: wsUrl,
+  VITE_USE_MOCKS: isMock,
+  // User convenience aliases
+  API_URL: apiUrl,
+  WS_URL: wsUrl,
+  IS_MOCK: isMock,
 };
