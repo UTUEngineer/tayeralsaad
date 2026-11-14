@@ -26,6 +26,9 @@ function defaultWsUrl(apiUrl: string): string {
   try {
     const u = new URL(apiUrl);
     u.protocol = u.protocol === "https:" ? "wss:" : "ws:";
+    u.pathname = "";
+    u.search = "";
+    u.hash = "";
     return u.toString().replace(/\/$/, "");
   } catch {
     return "ws://127.0.0.1:4000";
