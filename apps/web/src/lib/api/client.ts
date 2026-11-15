@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { env } from "@/config/env";
 import i18n from "@/i18n/config";
+import { handleMockRequest } from "@/lib/api/mock/axiosMockAdapter";
 
 /** Legacy key — migrated once into zustand persist */
 export const LEGACY_AUTH_STORAGE_KEY = "tairalsaad_auth";
@@ -14,11 +15,43 @@ export function setAuthNavigate(fn: () => void) {
   navigateToLogin = fn;
 }
 
+const defaultAdapter = axios.getAdapter(axios.defaults.adapter);
+
 export const apiClient = axios.create({
   baseURL: env.VITE_API_URL,
-  timeout: 60_000,
+  timeout: 10_000,
   headers: { "Content-Type": "application/json" },
   withCredentials: false,
+  adapter: async (config) => {
+    // 1. In mock mode, immediately resolve via in-memory mock (zero network/CORS overhead)
+    if (env.VITE_USE_MOCKS) {
+      const mockRes = handleMockRequest(config);
+      if (mockRes) return mockRes;
+    }
+
+    // 2. Attempt real HTTP network request
+    try {
+      return await defaultAdapter(config);
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError;
+      // 3. Resilient fallback: if real backend is unreachable (CORS/offline/CloudFront 404), fallback to mock
+      const isOfflineOrCors =
+        axiosErr.code === "ERR_NETWORK" ||
+        axiosErr.message === "Network Error" ||
+        !axiosErr.response ||
+        axiosErr.response.status === 404 ||
+        axiosErr.response.status === 502;
+
+      if (isOfflineOrCors) {
+        const fallbackRes = handleMockRequest(config);
+        if (fallbackRes) {
+          console.warn("[API Fallback] Backend unavailable, serving in-memory mock for:", config.url);
+          return fallbackRes;
+        }
+      }
+      throw err;
+    }
+  },
 });
 
 /** Attach Bearer from getter (set by auth store after init) */
