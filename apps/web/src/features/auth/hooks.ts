@@ -8,9 +8,10 @@ import type { LoginInput, MeUser, RegisterInput } from "@/features/auth/schemas"
 import { useAuthStore } from "@/features/auth/store";
 import { ME_KEY } from "@/features/auth/keys";
 import { disconnectRealtime } from "@/lib/realtime/socket";
+import { toDashboardRole } from "@/lib/role";
 
 function dashboardPathForRole(role: string): string {
-  switch (role) {
+  switch (toDashboardRole(role)) {
     case "ADMIN":
       return "/dashboard/admin";
     case "DRIVER":

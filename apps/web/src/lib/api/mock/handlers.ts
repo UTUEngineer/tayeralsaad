@@ -9,6 +9,26 @@ import { http, HttpResponse } from "msw";
 
 const ok = <T,>(data: T) => HttpResponse.json({ ok: true, data });
 
+let currentMockUser: {
+  id: string;
+  name: string;
+  email?: string;
+  phone: string;
+  role: string;
+  preferredLanguage: string;
+  defaultAddresses: unknown[];
+  createdAt: string;
+} = {
+  id: "u_mock_1",
+  name: "Mock User",
+  email: "admin@tayralsaad.iq",
+  phone: "+9647700000000",
+  role: "admin",
+  preferredLanguage: "ar",
+  defaultAddresses: [],
+  createdAt: new Date().toISOString(),
+};
+
 export const handlers = [
   // Root health (NOT under /api/v1). Matches app.ts GET /health.
   http.get("*/health", () =>
@@ -29,6 +49,30 @@ export const handlers = [
   // POST /api/v1/auth/otp/request -> { ok, data: { expiresIn, devCode? } }
   http.post("*/api/v1/auth/otp/request", () => ok({ expiresIn: 300, devCode: "1234" })),
 
+  // POST /api/v1/auth/admin/login -> { ok, data: { user, accessToken, refreshToken, expiresIn } }
+  http.post("*/api/v1/auth/admin/login", async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as {
+      email?: string;
+      password?: string;
+    };
+    currentMockUser = {
+      id: "u_admin_1",
+      name: "مسؤول النظام",
+      email: body.email || "admin@tayralsaad.iq",
+      phone: "+964779000099",
+      role: "admin",
+      preferredLanguage: "ar",
+      defaultAddresses: [],
+      createdAt: new Date().toISOString(),
+    };
+    return ok({
+      user: currentMockUser,
+      accessToken: "mock.admin.access.token",
+      refreshToken: "mock.admin.refresh.token",
+      expiresIn: 900,
+    });
+  }),
+
   // POST /api/v1/auth/otp/verify -> { ok, data: { user, accessToken, refreshToken, expiresIn } }
   http.post("*/api/v1/auth/otp/verify", async ({ request }) => {
     const body = (await request.json().catch(() => ({}))) as {
@@ -36,36 +80,37 @@ export const handlers = [
       name?: string;
       role?: string;
     };
-    const role = ["sender", "driver", "admin"].includes(String(body.role))
-      ? String(body.role)
-      : "sender";
+    const phone = String(body.phone ?? "").trim();
+    let detectedRole = "sender";
+    if (body.role && ["sender", "driver", "admin"].includes(String(body.role).toLowerCase())) {
+      detectedRole = String(body.role).toLowerCase();
+    } else if (phone.includes("779000099") || phone.includes("admin")) {
+      detectedRole = "admin";
+    } else if (phone.includes("77222220") || phone.includes("driver")) {
+      detectedRole = "driver";
+    }
+
+    currentMockUser = {
+      id: `u_${detectedRole}_1`,
+      name: body.name ?? (detectedRole === "admin" ? "مسؤول النظام" : detectedRole === "driver" ? "سائق تجريبي" : "مرسل تجريبي"),
+      email: detectedRole === "admin" ? "admin@tayralsaad.iq" : undefined,
+      phone: phone || "+9647700000000",
+      role: detectedRole,
+      preferredLanguage: "ar",
+      defaultAddresses: [],
+      createdAt: new Date().toISOString(),
+    };
+
     return ok({
-      user: {
-        id: "u_mock_1",
-        name: body.name ?? "Mock User",
-        phone: body.phone ?? "+9647700000000",
-        role,
-        preferredLanguage: "ar",
-        createdAt: new Date().toISOString(),
-      },
-      accessToken: "mock.access.token",
-      refreshToken: "mock.refresh.token",
+      user: currentMockUser,
+      accessToken: `mock.${detectedRole}.access.token`,
+      refreshToken: `mock.${detectedRole}.refresh.token`,
       expiresIn: 900,
     });
   }),
 
   // GET /api/v1/me -> { ok, data: user }
-  http.get("*/api/v1/me", () =>
-    ok({
-      id: "u_mock_1",
-      name: "Mock User",
-      phone: "+9647700000000",
-      role: "sender",
-      preferredLanguage: "ar",
-      defaultAddresses: [],
-      createdAt: new Date().toISOString(),
-    }),
-  ),
+  http.get("*/api/v1/me", () => ok(currentMockUser)),
 
   // GET /api/v1/shipments/mine -> { ok, data: { items, total } }
   http.get("*/api/v1/shipments/mine", () => ok({ items: [], total: 0 })),

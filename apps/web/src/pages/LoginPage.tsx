@@ -82,6 +82,56 @@ function AuthLoginForm() {
         {loginMutation.isPending ? <Loader2 className="animate-spin" aria-hidden /> : null}
         {t("auth.signIn")}
       </Button>
+
+      <div className="mt-4 pt-4 border-t border-border/60">
+        <p className="text-xs font-medium text-center text-muted-foreground mb-2">
+          تسجيل دخول سريع للتجربة (Quick Demo Login)
+        </p>
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-8 px-1 border-primary/40 hover:bg-primary/10 hover:text-primary font-semibold"
+            disabled={loginMutation.isPending}
+            onClick={() => {
+              form.setValue("phone", "admin@tayralsaad.iq");
+              form.setValue("password", "admin123456");
+              loginMutation.mutate({ phone: "admin@tayralsaad.iq", password: "admin123456" });
+            }}
+          >
+            🛡️ أدمن (Admin)
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-8 px-1 border-blue-500/40 hover:bg-blue-500/10 hover:text-blue-600 font-semibold"
+            disabled={loginMutation.isPending}
+            onClick={() => {
+              form.setValue("phone", "+964772222201");
+              form.setValue("password", "driver1234");
+              loginMutation.mutate({ phone: "+964772222201", password: "driver1234" });
+            }}
+          >
+            🚗 سائق (Driver)
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="text-xs h-8 px-1 border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-600 font-semibold"
+            disabled={loginMutation.isPending}
+            onClick={() => {
+              form.setValue("phone", "+964771111101");
+              form.setValue("password", "sender1234");
+              loginMutation.mutate({ phone: "+964771111101", password: "sender1234" });
+            }}
+          >
+            📦 مرسل (Sender)
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }

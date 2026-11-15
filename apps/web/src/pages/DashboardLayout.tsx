@@ -38,6 +38,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/context/AuthContext";
+import { isAdminRole, isDriverRole, isSenderRole } from "@/lib/role";
 import { getAdminNavKeyFromPath } from "@/features/admin/adminShellPaths";
 import { AdminNavLinks } from "@/features/admin/components/AdminNav";
 import { AdminShellBreadcrumbs } from "@/features/admin/components/AdminShellBreadcrumbs";
@@ -162,14 +163,15 @@ function DashboardSidebarBody({ onNavigate }: { onNavigate?: () => void }) {
 
   const contact = auth?.user.email?.trim() || auth?.user.phone;
   const dbOk = health?.ok && health.db === "up";
-  const isAdmin = auth?.user.role === "ADMIN";
+  const isAdmin = isAdminRole(auth?.user.role);
+  const isDriver = isDriverRole(auth?.user.role);
+  const isSender = isSenderRole(auth?.user.role);
 
-  const roleLabel =
-    auth?.user.role === "ADMIN"
-      ? t("admin.shell.roleLabelAdmin")
-      : auth?.user.role === "DRIVER"
-        ? t("dashboard.badgeDriver")
-        : t("dashboard.badgeSender");
+  const roleLabel = isAdmin
+    ? t("admin.shell.roleLabelAdmin")
+    : isDriver
+      ? t("dashboard.badgeDriver")
+      : t("dashboard.badgeSender");
 
   return (
     <>
@@ -197,20 +199,30 @@ function DashboardSidebarBody({ onNavigate }: { onNavigate?: () => void }) {
               <Badge variant="secondary">{roleLabel}</Badge>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-[12rem]" align="start" sideOffset={6}>
+          <DropdownMenuContent className="min-w-[14rem]" align="start" sideOffset={6}>
             <DropdownMenuLabel className="font-normal">
               <p className="font-medium">{auth.user.name}</p>
               <p className="text-xs text-muted-foreground">{contact}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link to="/dashboard/admin" onClick={() => onNavigate?.()} className="cursor-pointer">
-                {t("admin.shell.userMenuProfile")}
+              <Link to="/dashboard/admin" onClick={() => onNavigate?.()} className="cursor-pointer font-semibold text-primary">
+                🛡️ {t("admin.shell.userMenuProfile")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/driver" onClick={() => onNavigate?.()} className="cursor-pointer">
+                🚗 {t("nav.driverDashboard")}
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/dashboard/sender" onClick={() => onNavigate?.()} className="cursor-pointer">
+                📦 {t("nav.senderDashboard")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/dashboard/admin/settings" onClick={() => onNavigate?.()} className="cursor-pointer">
-                {t("admin.shell.userMenuSettings")}
+                ⚙️ {t("admin.shell.userMenuSettings")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -221,6 +233,7 @@ function DashboardSidebarBody({ onNavigate }: { onNavigate?: () => void }) {
                 signOut();
               }}
             >
+              <LogOut className="h-4 w-4 me-2" />
               {t("admin.shell.userMenuSignOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -240,9 +253,39 @@ function DashboardSidebarBody({ onNavigate }: { onNavigate?: () => void }) {
           </p>
         </div>
       ) : null}
-      {auth?.user.role === "SENDER" ? <SenderNavLinks onNavigate={onNavigate} /> : null}
-      {isAdmin ? <AdminNavLinks onNavigate={onNavigate} /> : null}
-      {auth?.user.role === "DRIVER" ? <DriverNavLinks onNavigate={onNavigate} /> : null}
+      {isAdmin ? (
+        <div className="space-y-3">
+          <AdminNavLinks onNavigate={onNavigate} />
+          <Separator className="my-3" />
+          <div className="rounded-lg bg-muted/50 p-2">
+            <p className="mb-1.5 px-1 text-[0.7rem] font-semibold uppercase tracking-wider text-muted-foreground">
+              معاينة الواجهات (Views)
+            </p>
+            <div className="grid grid-cols-2 gap-1">
+              <Link
+                to="/dashboard/driver"
+                className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-background hover:text-foreground"
+                onClick={onNavigate}
+              >
+                <Truck className="h-3.5 w-3.5" />
+                <span>السائق</span>
+              </Link>
+              <Link
+                to="/dashboard/sender"
+                className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-background hover:text-foreground"
+                onClick={onNavigate}
+              >
+                <Package className="h-3.5 w-3.5" />
+                <span>المرسل</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : isDriver ? (
+        <DriverNavLinks onNavigate={onNavigate} />
+      ) : (
+        <SenderNavLinks onNavigate={onNavigate} />
+      )}
       <Separator className="my-4" />
       <LanguageSwitcher id="dashboard-lang-sidebar" className="max-w-full" />
       <Button
@@ -286,8 +329,8 @@ export function DashboardLayout() {
     navigate("/login", { replace: true });
   }
 
-  const isSender = auth?.user.role === "SENDER";
-  const isAdmin = auth?.user.role === "ADMIN";
+  const isSender = isSenderRole(auth?.user.role);
+  const isAdmin = isAdminRole(auth?.user.role);
   const sheetSide = i18n.language?.toLowerCase().startsWith("ar") ? "right" : "left";
   const adminNavKey = isAdmin ? getAdminNavKeyFromPath(location.pathname) : null;
   const adminNavLabel = adminNavKey ? t(`admin.nav.${adminNavKey}`) : null;
